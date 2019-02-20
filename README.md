@@ -1,4 +1,4 @@
-**See `before_leaving_gsc` branch for last snapshot**
+**See `before_leaving_gsc` folder for data related files**
 
 `for_kon_paper` folder is too big (48G), thus not committed.
 
