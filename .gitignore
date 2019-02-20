@@ -1,5 +1,4 @@
 *.py[co]
 lele*
 .ruffus_history.sqlite
-chr*
-set5.dev
+
