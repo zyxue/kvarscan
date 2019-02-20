@@ -1,4 +1,4 @@
-Related to this paper
+Related to Figure 4 in this paper
 
 https://bmcmedgenomics.biomedcentral.com/articles/10.1186/1755-8794-8-S3-S1
 
