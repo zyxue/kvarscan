@@ -1,0 +1,31 @@
+base2/min_var_0:
+        --min-var-freq 0 \	
+
+base3:
+        --min-coverage 1 \
+        --min-coverage-normal 0 \
+        --min-coverage-tumor 1 \
+        --somatic-p-value 1 \
+        --min-var-freq 0 \
+
+base4:
+        --min-reads2 1 \
+        --min-var-freq 0 \
+
+base5:
+        --min-coverage 1 \
+        --min-coverage-normal 0 \
+        --min-coverage-tumor 1 \
+        --somatic-p-value 1 \
+        --min-reads2 1 \
+        --min-var-freq 0 \
+
+base6:
+        --min-var-freq 0 \
+        --min-coverage 1 \
+        --min-coverage-normal 0 \
+        --min-coverage-tumor 1 \
+        --somatic-p-value 1 \
+        --min-reads2 1 \
+        --min-avg-qual 0 \
+

@@ -1,0 +1,14 @@
+abyss_bloom:
+  # start, end (exclusive), step, feed to irange in python
+  k_mer_sizes: [90, 20, -10]
+  cmd: "abyss-bloom build -v -k {k_mer_size} -j 1 -b 500M -l 2 -q 15 - {fq1} {fq2} | gzip -c > {bf}"
+
+konnector:
+  cmd: >-
+    konnector -k ${k_mer_size} -i <(zcat $bloom) 
+    -v -j 16 -P 4 -M nolimit -X 98.0 -B 100 -F 525 -p 
+    >(gzip -c >${kon_dir}/fafq/${cell_type}_k${k_mer_size}_altpaths.fa.gz) 
+    -o "${kon_dir}/fafq/fifo_${cell_type}_k${k_mer_size}" 
+    $fq1 
+    $fq2
+    
