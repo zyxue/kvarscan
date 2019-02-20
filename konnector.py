@@ -40,8 +40,8 @@ PATH_RE = (r'(?P<prefix>.*)/'
 INPUT_FQS = [OPTIONS.fq1, OPTIONS.fq2]
 
 
-def gen_vars_for_abb(input_fqs):
-    """generate variables for the task of abyss_bloom"""
+def gen_vars(input_fqs):
+    """generate variables for the task of abyss_bloom, konnector"""
     k_sizes = range(*CONFIG['abyss_bloom']['k_mer_sizes'])
     sr = re.search(PATH_RE, input_fqs[0])
     sr2 = re.search(PATH_RE, input_fqs[1])
@@ -52,15 +52,39 @@ def gen_vars_for_abb(input_fqs):
         print '{0} != {1}'.format(sr.groups(), sr2.groups())
         raise
 
-    bfs, bf_flags = [], []
+    bfs, bf_flags, fas, fa_flags = [], [], [], []
     for k_size in k_sizes:
-        bname = '{0}_k{1}.bf.gz'.format(sr.group('celltype'), k_size)
-        bfs.append(os.path.join(
-            sr.group('prefix'), 'kon', sr.group('chr'), 'bf', bname))
-    bf_flags = ['{0}.SUCCESS'.format(__) for __ in bfs]
-    return k_sizes, bfs, bf_flags
+        # for abyss_bloom
+        # bn: basename
+        bf_bn = '{0}_k{1}.bf.gz'.format(sr.group('celltype'), k_size)
+        bf_flag_bn = '{0}.SUCCESS'.format(bf_bn)
+        bf_dir = os.path.join(sr.group('prefix'), 'kon', sr.group('chr'), 'bf')
+        bf = os.path.join(bf_dir, bf_bn)
+        bf_flag = os.path.join(bf_dir, bf_flag_bn)
+        bfs.append(bf)
+        bf_flags.append(bf_flag)
 
-K_MER_SIZES, BFS, BF_FLAGS = gen_vars_for_abb(INPUT_FQS)
+        # for konnector
+        fa_all_bn = '{0}_k{1}_allpaths.fa.gz'.format(sr.group('celltype'), k_size)
+        fa_mer_bn = '{0}_k{1}_merged.fa.gz'.format(sr.group('celltype'), k_size)
+        fa_flag_bn = '{0}_k{1}.SUCCESS'.format(sr.group('celltype'), k_size)
+        fa_dir = os.path.join(sr.group('prefix'), 'kon', sr.group('chr'), 'fafq')
+        fa_all = os.path.join(fa_dir, fa_all_bn)
+        fa_mer = os.path.join(fa_dir, fa_mer_bn)
+        fa_flag = os.path.join(fa_dir, fa_flag_bn)
+        fas.extend([fa_all, fa_mer])
+        fa_flags.append(fa_flag)
+
+    return k_sizes, bfs, bf_flags, fas, fa_flags
+
+K_MER_SIZES, BFS, BF_FLAGS, FAS, FA_FLAGS = gen_vars(INPUT_FQS)
+
+for __ in FAS:
+    print __
+
+for __ in FA_FLAGS:
+    print __
+
 
 @R.mkdir(INPUT_FQS, R.formatter(PATH_RE), ['{prefix[0]}/kon/{chr[0]}/bf'])
 @R.collate(INPUT_FQS, R.formatter(), BFS + BF_FLAGS)
@@ -74,12 +98,13 @@ def abyss_bloom(input_fqs, outputs):
         execute(cmd, flag=bf_flag)
 
 
-@R.follow
+@R.follow(abyss_bloom)
+@R.mkdir(abyss_bloom, R.formatter(PATH_RE), ['{subpath[0][1]}/fafq'])
+@R.collate(abyss_bloom, R.formatter(), FAS + FA_FLAGS)
+def konnector(input_fqs, outputs):
+    for k_mer_size, fa, fa_flag in zip(K_MER_SIZES, FAS, FA_FLAGS):
 
 
-# @R.follows(index_bam)
-# @R.mkdir(input_bams, R.formatter(PATH_RE), ['{subpath[0][1]}/pileup'])
-# @R.transform(input_bams, R.formatter(PATH_RE),
 #              ['{subpath[0][1]}/pileup/{basename[0]}.pileup.gz',
 #               '{subpath[0][1]}/pileup/{basename[0]}.pileup.SUCCESS',
 #               '{subpath[0][1]}/pileup/{basename[0]}.pileup_gzip.SUCCESS'])
